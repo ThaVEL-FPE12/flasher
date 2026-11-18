@@ -1,0 +1,83 @@
+{
+  "api": "https://justhongyur-flasher-api.xhoang-dev.workers.dev",
+  "projects": [
+    {
+      "id": "nescat-plus",
+      "name": "NesCat-Plus",
+      "emoji": "🐱",
+      "description": "NES emulator for ESP32 with a 240x240 ST7789 display, microSD, PCM5102 audio and 8 buttons. Optional CC1101/NRF24 and infrared.",
+      "boards": [
+        {
+          "id": "esp32-wroom",
+          "name": "ESP32 WROOM (DevKit, 30-pin)",
+          "chip": "ESP32",
+          "available": true,
+          "diagram": "projects/nescat-plus/esp32/diagram.png",
+          "fw": "nescat-plus/esp32",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "flipper-c3",
+      "name": "FLIPPER-C3",
+      "emoji": "🐬",
+      "description": "A Flipper Zero-style device that is more affordable and compact. Sub-GHz, NRF24, infrared, Bluetooth, apps and games.",
+      "boards": [
+        {
+          "id": "esp32-c3-supermini",
+          "name": "ESP32-C3 Super Mini",
+          "chip": "ESP32-C3",
+          "available": true,
+          "diagram": "projects/flipper-c3/esp32c3/diagram.png",
+          "fw": "flipper-c3/esp32c3",
+          "version": "1.0.0"
+        },
+        {
+          "id": "esp32-wroom",
+          "name": "ESP32 WROOM (DevKit)",
+          "chip": "ESP32",
+          "available": true,
+          "diagram": "projects/flipper-c3/esp32/diagram.png",
+          "fw": "flipper-c3/esp32",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "fz-s3",
+      "name": "Fz-S3",
+      "emoji": "⚡",
+      "description": "Flipper-style firmware for ESP32-S3 with Sub-GHz (CC1101), NRF24, NFC (PN532), infrared and an SD card.",
+      "boards": [
+        {
+          "id": "s3-supermini",
+          "name": "ESP32-S3 Super Mini",
+          "chip": "ESP32-S3",
+          "available": true,
+          "diagram": "projects/fz-s3/supermini/diagram.png",
+          "fw": "fz-s3/supermini",
+          "version": "1.0.0"
+        },
+        {
+          "id": "s3-n16r8",
+          "name": "ESP32-S3 N16R8 (Fz_Port_S3)",
+          "chip": "ESP32-S3",
+          "available": true,
+          "diagram": "projects/fz-s3/n16r8/diagram.png",
+          "fw": "fz-s3/n16r8",
+          "version": "1.0.0"
+        },
+        {
+          "id": "s3-n16r8-nommtn",
+          "name": "ESP32-S3 N16R8 (NoMMTN)",
+          "chip": "ESP32-S3",
+          "available": true,
+          "diagram": "projects/fz-s3/n16r8-nommtn/diagram.png",
+          "fw": "fz-s3/n16r8-nommtn",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  ]
+}

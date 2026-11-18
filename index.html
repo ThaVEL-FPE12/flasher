@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JustHongYur Flasher</title>
+<script type="module" src="https://unpkg.com/esp-web-tools@10.0.1/dist/web/install-button.js?module"></script>
+<style>
+  @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  :root {
+    --text:#eef0ff; --muted:#9aa3c7; --panel:rgba(10,13,32,.93);
+    --rgb: conic-gradient(from var(--angle), #ff0040, #ff9900, #ffee00, #00ff6a, #00d5ff, #4d4dff, #d400ff, #ff0040);
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; min-height:100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--text);
+    background: radial-gradient(ellipse at 20% 0%, #1b1146 0%, transparent 55%),
+                radial-gradient(ellipse at 90% 100%, #0b2a4a 0%, transparent 50%), #05060f;
+    background-attachment: fixed;
+  }
+  #sky { position:fixed; inset:0; width:100%; height:100%; z-index:0; }
+  main { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:48px 16px 32px; }
+
+  @keyframes spin { to { --angle: 360deg; } }
+  .rgb {
+    position:relative; isolation:isolate; border:2px solid transparent; border-radius:16px;
+    background: linear-gradient(var(--panel), var(--panel)) padding-box, var(--rgb) border-box;
+    animation: spin 4s linear infinite;
+  }
+  .rgb::before { content:""; position:absolute; inset:-2px; z-index:-1; border-radius:inherit;
+    background: var(--rgb); filter: blur(16px); opacity:.4; }
+  .card { padding:26px; margin-bottom:20px; }
+
+  h1 { margin:0 0 6px; font-size:1.9rem; letter-spacing:.3px;
+       background:linear-gradient(90deg,#ff5fa2,#ffd45f,#5fffb0,#5fd3ff,#b05fff,#ff5fa2); background-size:300% 100%;
+       -webkit-background-clip:text; background-clip:text; color:transparent; animation: flow 6s linear infinite; }
+  @keyframes flow { to { background-position:300% 0; } }
+  p, li { color:var(--muted); line-height:1.65; margin:6px 0; }
+  b { color:var(--text); }
+  .step { display:flex; align-items:center; gap:10px; margin:24px 0 10px; font-size:.85rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+  .step i { font-style:normal; width:22px; height:22px; border-radius:50%; background:#1a2060; color:#fff; display:grid; place-items:center; font-size:.78rem; }
+
+  #projects { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; }
+  .proj {
+    text-align:left; cursor:pointer; padding:14px; color:var(--text); font:inherit;
+    background:#0d1130; border:2px solid #2b3270; border-radius:12px; transition:transform .15s, border-color .15s;
+  }
+  .proj:hover { transform:translateY(-2px); border-color:#5fd3ff; }
+  .proj .em { font-size:1.6rem; display:block; margin-bottom:6px; }
+  .proj .nm { font-weight:700; display:block; }
+  .proj.active {
+    border-color:transparent;
+    background: linear-gradient(#111742,#111742) padding-box, var(--rgb) border-box;
+    animation: spin 3s linear infinite;
+  }
+  #pdesc { margin:12px 2px 0; min-height:1.4em; }
+
+  select { width:100%; padding:12px 14px; font-size:1rem; color:var(--text); background:#0d1130;
+    border:1px solid #2b3270; border-radius:10px; outline:none; cursor:pointer; }
+  select:focus { border-color:#5fd3ff; box-shadow:0 0 0 3px rgba(95,211,255,.2); }
+  .info { margin-top:12px; font-size:.9rem; color:var(--muted); min-height:1.6em; }
+  .tag { display:inline-block; padding:2px 10px; border-radius:999px; font-size:.78rem; border:1px solid #2b3270; margin-right:6px; color:var(--text); }
+  .tag.soon { color:#ffb454; border-color:#7a5420; }
+  .tag.ok { color:#5fffb0; border-color:#1f6b4a; }
+
+  .flash-btn { margin-top:22px; padding:13px 28px; font-size:1.02rem; font-weight:700; color:#fff; cursor:pointer;
+    border:2px solid transparent; border-radius:10px;
+    background: linear-gradient(#0d1130,#0d1130) padding-box, var(--rgb) border-box;
+    animation: spin 3s linear infinite; transition: transform .15s; }
+  .flash-btn:hover { transform:translateY(-1px); }
+  .disabled-note { display:none; margin-top:22px; color:#ffb454; }
+  .warn { color:#ff6b6b; display:block; margin-top:20px; }
+  .diagram-wrap { background:#fff; border-radius:10px; padding:8px; margin-top:10px; }
+  .diagram-wrap img { display:block; width:100%; height:auto; cursor:zoom-in; border-radius:6px; }
+  .hint { font-size:.85rem; }
+  #lightbox { position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center;
+    background:rgba(2,3,12,.88); padding:16px; cursor:zoom-out; }
+  #lightbox.open { display:flex; }
+  #lightbox img { max-width:96vw; max-height:94vh; background:#fff; border-radius:10px; padding:8px; }
+  .code-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+  .code-row input { flex:1 1 220px; padding:12px 14px; font-size:1.05rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--text); background:#0d1130; border:1px solid #2b3270; border-radius:10px; outline:none;
+    font-family: ui-monospace, Consolas, "Courier New", monospace; }
+  .code-row input:focus { border-color:#5fd3ff; box-shadow:0 0 0 3px rgba(95,211,255,.2); }
+  .code-row .flash-btn { margin-top:0; }
+  .flash-btn:disabled { opacity:.6; cursor:wait; }
+  .hint.err { color:#ff6b6b; }
+  .ok-text { color:#5fffb0; margin:4px 0 0; font-size:.9rem; }
+  footer { text-align:center; color:var(--muted); font-size:.8rem; margin-top:8px; }
+  @media (prefers-reduced-motion: reduce) { .rgb, .flash-btn, .proj.active, h1 { animation:none; } }
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<div id="lightbox"><img alt="Wiring diagram enlarged"></div>
+<main>
+  <div class="card rgb">
+    <h1>JustHongYur Flasher</h1>
+    <p>Flash firmware straight from your browser. Pick a project, pick your board, connect over USB and install.</p>
+
+    <div class="step"><i>1</i> Select project</div>
+    <div id="projects"></div>
+    <p id="pdesc"></p>
+
+    <div class="step"><i>2</i> Select board</div>
+    <select id="board"></select>
+    <div class="info" id="info"></div>
+
+    <div class="step"><i>3</i> Unlock &amp; install</div>
+    <div id="lockBox">
+      <div class="code-row">
+        <input id="code" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="One-time code">
+        <button id="unlock" type="button" class="flash-btn">🔓 Unlock</button>
+      </div>
+      <p id="lockMsg" class="hint"></p>
+    </div>
+    <div id="installBox" style="display:none">
+      <p id="countdown" class="ok-text"></p>
+      <esp-web-install-button id="installer" manifest="">
+        <button slot="activate" class="flash-btn">⚡ Install firmware</button>
+        <span slot="unsupported" class="warn">Your browser does not support Web Serial. Please use Chrome or Edge on a computer.</span>
+        <span slot="not-allowed" class="warn">This page must be opened over HTTPS (GitHub Pages).</span>
+      </esp-web-install-button>
+    </div>
+    <p class="hint">Can't connect? Hold <b>BOOT</b>, tap <b>EN/RST</b>, release both and try again. On the first install, choose <b>Erase device</b>.</p>
+    <div class="disabled-note" id="soon">This board has no firmware yet. Please check back later.</div>
+  </div>
+
+  <div class="card rgb" id="diagramCard" style="display:none">
+    <b>Wiring diagram</b>
+    <p id="dcap"></p>
+    <div class="diagram-wrap"><img id="diagram" alt="Wiring diagram" title="Click to enlarge"></div>
+    <p class="hint">Click the diagram to enlarge it.</p>
+  </div>
+  <footer>JustHongYur Flasher · powered by ESP Web Tools</footer>
+</main>
+
+<script>
+/* Projects and boards come from projects.json.
+   Firmware is NOT stored on this site: the API releases it only for a valid one-time code. */
+const $ = id => document.getElementById(id);
+const projectsEl = $('projects'), pdesc = $('pdesc'), sel = $('board'),
+      installer = $('installer'), info = $('info'), soon = $('soon'),
+      lockBox = $('lockBox'), installBox = $('installBox'), codeEl = $('code'),
+      unlockBtn = $('unlock'), lockMsg = $('lockMsg'), countdown = $('countdown');
+let PROJECTS = [], current = null, API = '', timer = null;
+const SKEY = 'jhy-session';
+
+const ERRORS = {
+  invalid_code: 'This code is not valid for this project.',
+  code_used: 'This code has already been used.',
+  too_many_attempts: 'Too many wrong attempts. Please wait 10 minutes and try again.',
+  no_firmware: 'Firmware for this board is not available yet.',
+  bad_board: 'Unknown board.',
+  server_error: 'Server error. Please try again later.'
+};
+
+function tag(text, cls) {
+  const s = document.createElement('span');
+  s.className = 'tag' + (cls ? ' ' + cls : '');
+  s.textContent = text;
+  return s;
+}
+function loadSession() { try { return JSON.parse(sessionStorage.getItem(SKEY)); } catch (e) { return null; } }
+function saveSession(v) { try { v ? sessionStorage.setItem(SKEY, JSON.stringify(v)) : sessionStorage.removeItem(SKEY); } catch (e) {} }
+const currentBoard = () => current && current.boards.find(x => x.id === sel.value);
+
+function showLocked(msg, isError) {
+  clearInterval(timer);
+  installBox.style.display = 'none';
+  lockBox.style.display = '';
+  lockMsg.textContent = msg || 'Enter your one-time code. Each code can be used for one install only.';
+  lockMsg.className = 'hint' + (isError ? ' err' : '');
+}
+function showUnlocked(sess) {
+  lockBox.style.display = 'none';
+  installBox.style.display = '';
+  installer.setAttribute('manifest', sess.manifest);
+  clearInterval(timer);
+  const tick = () => {
+    const left = sess.expires - Date.now();
+    if (left <= 0) {
+      saveSession(null);
+      installer.setAttribute('manifest', '');
+      showLocked('Session expired. Enter a new code to install again.', true);
+      return;
+    }
+    const m = Math.floor(left / 60000), s = String(Math.floor((left % 60000) / 1000)).padStart(2, '0');
+    countdown.textContent = 'Unlocked · start the install within ' + m + ':' + s;
+  };
+  tick();
+  timer = setInterval(tick, 1000);
+}
+
+async function init() {
+  try {
+    const r = await fetch('projects.json', { cache: 'no-store' });
+    const data = await r.json();
+    PROJECTS = data.projects || [];
+    API = String(data.api || '').replace(/\/+$/, '');
+    if (/PASTE/i.test(API)) API = '';
+  } catch (e) {
+    pdesc.textContent = 'Could not load projects.json.';
+    return;
+  }
+  PROJECTS.forEach(p => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'proj'; b.dataset.id = p.id;
+    const em = document.createElement('span'); em.className = 'em'; em.textContent = p.emoji || '📦';
+    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = p.name;
+    b.append(em, nm);
+    b.addEventListener('click', () => selectProject(p.id));
+    projectsEl.appendChild(b);
+  });
+  const fromHash = decodeURIComponent(location.hash.slice(1));
+  selectProject(PROJECTS.some(p => p.id === fromHash) ? fromHash : (PROJECTS[0] && PROJECTS[0].id));
+}
+
+function selectProject(id) {
+  current = PROJECTS.find(p => p.id === id);
+  if (!current) return;
+  history.replaceState(null, '', '#' + encodeURIComponent(id));
+  projectsEl.querySelectorAll('.proj').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+  pdesc.textContent = current.description || '';
+  sel.textContent = '';
+  current.boards.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b.id;
+    o.textContent = b.name + (b.available ? '' : ' (coming soon)');
+    sel.appendChild(o);
+  });
+  const first = current.boards.find(b => b.available) || current.boards[0];
+  if (first) sel.value = first.id;
+  updateBoard();
+}
+
+function updateBoard() {
+  const b = currentBoard();
+  info.textContent = '';
+  if (!b) {
+    lockBox.style.display = 'none'; installBox.style.display = 'none';
+    $('diagramCard').style.display = 'none';
+    return;
+  }
+  soon.style.display = b.available ? 'none' : 'block';
+  info.append(tag(b.chip), b.available ? tag('Ready', 'ok') : tag('Coming soon', 'soon'));
+  if (b.version) info.append(tag('Version ' + b.version));
+  showDiagram(b);
+  if (!b.available) { lockBox.style.display = 'none'; installBox.style.display = 'none'; return; }
+  if (!API) { showLocked('The unlock server is not configured yet.', true); return; }
+  const s = loadSession();
+  if (s && s.fw === b.fw && s.expires > Date.now()) showUnlocked(s);
+  else showLocked();
+}
+
+async function unlock() {
+  const b = currentBoard();
+  if (!b || !b.available) return;
+  if (!API) { showLocked('The unlock server is not configured yet.', true); return; }
+  const code = codeEl.value.trim();
+  if (code.replace(/-/g, '').length < 12) { showLocked('Please enter the full code.', true); return; }
+  unlockBtn.disabled = true; unlockBtn.textContent = 'Checking…';
+  try {
+    const r = await fetch(API + '/api/redeem', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, fw: b.fw })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { showLocked(ERRORS[j.error] || 'Could not unlock. Please try again.', true); return; }
+    const sess = { fw: b.fw, manifest: j.manifest, expires: j.expires_at };
+    saveSession(sess);
+    codeEl.value = '';
+    showUnlocked(sess);
+  } catch (e) {
+    showLocked('Cannot reach the server. Check your connection.', true);
+  } finally {
+    unlockBtn.disabled = false; unlockBtn.textContent = '🔓 Unlock';
+  }
+}
+unlockBtn.addEventListener('click', unlock);
+codeEl.addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
+codeEl.addEventListener('input', () => {
+  const raw = codeEl.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16);
+  codeEl.value = raw.replace(/(.{4})(?=.)/g, '$1-');
+});
+
+function showDiagram(b) {
+  const card = $('diagramCard');
+  if (!b.diagram) { card.style.display = 'none'; return; }
+  $('diagram').src = b.diagram;
+  $('dcap').textContent = current.name + ' · ' + b.name;
+  card.style.display = '';
+}
+const lb = $('lightbox');
+$('diagram').addEventListener('click', () => { lb.querySelector('img').src = $('diagram').src; lb.classList.add('open'); });
+lb.addEventListener('click', () => lb.classList.remove('open'));
+addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('open'); });
+sel.addEventListener('change', updateBoard);
+init();
+
+/* ===== Starry sky + shooting stars ===== */
+(function () {
+  const c = $('sky'), ctx = c.getContext('2d');
+  let w, h, dpr, stars = [], meteors = [], last = 0, nextMeteor = 0;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    w = c.width = innerWidth * dpr; h = c.height = innerHeight * dpr;
+    const n = Math.floor((w * h) / (9000 * dpr * dpr));
+    stars = Array.from({ length: n }, () => ({ x: Math.random() * w, y: Math.random() * h,
+      r: (Math.random() * 1.2 + 0.3) * dpr, p: Math.random() * 6.28, s: Math.random() * 1.5 + 0.5 }));
+  }
+  function spawn() {
+    const a = (Math.random() * 15 + 25) * Math.PI / 180, sp = (Math.random() * 500 + 700) * dpr;
+    meteors.push({ x: Math.random() * w * 1.1 + w * 0.1, y: -20 * dpr, vx: -Math.cos(a) * sp, vy: Math.sin(a) * sp,
+      len: (Math.random() * 120 + 120) * dpr, life: 0, max: 1.6 + Math.random() });
+  }
+  function frame(t) {
+    const dt = Math.min((t - last) / 1000, 0.05); last = t;
+    ctx.clearRect(0, 0, w, h);
+    for (const s of stars) {
+      ctx.globalAlpha = reduce ? 0.7 : 0.45 + 0.55 * Math.sin(t / 1000 * s.s + s.p);
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (!reduce) {
+      nextMeteor -= dt;
+      if (nextMeteor <= 0) { spawn(); nextMeteor = Math.random() * 1.4 + 0.5; }
+      meteors = meteors.filter(m => m.life < m.max && m.x > -300 && m.y < h + 300);
+      for (const m of meteors) {
+        m.life += dt; m.x += m.vx * dt; m.y += m.vy * dt;
+        const d = Math.hypot(m.vx, m.vy), tx = m.x - m.vx / d * m.len, ty = m.y - m.vy / d * m.len;
+        const g = ctx.createLinearGradient(m.x, m.y, tx, ty);
+        g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.3, 'rgba(150,200,255,.5)'); g.addColorStop(1, 'rgba(150,200,255,0)');
+        ctx.strokeStyle = g; ctx.lineWidth = 2 * dpr; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.shadowColor = '#9fd0ff'; ctx.shadowBlur = 12 * dpr;
+        ctx.beginPath(); ctx.arc(m.x, m.y, 2 * dpr, 0, 6.2832); ctx.fill(); ctx.shadowBlur = 0;
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize', resize); resize(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
